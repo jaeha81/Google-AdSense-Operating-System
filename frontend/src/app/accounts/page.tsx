@@ -139,7 +139,7 @@ export default function AccountsPage() {
 
                 {isEditing && (
                   <div style={{ marginTop: 16, padding: 14, background: "#0d1117", borderRadius: 8 }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+                    <div className="g2" style={{ marginBottom: 10 }}>
                       <div>
                         <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 4 }}>리스크 점수 (0~100)</div>
                         <input type="range" min={0} max={100} value={draft.risk_score ?? 100}

@@ -140,7 +140,7 @@ export default function RevenuePage() {
       </div>
 
       {/* Platform Summary Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+      <div className="g4" style={{ marginBottom: 20 }}>
         {PLATFORMS.map(p => {
           const summaryKey = `total_${p.key}` as keyof Summary;
           const val = summary ? (summary[summaryKey] as number) : 0;
@@ -156,7 +156,7 @@ export default function RevenuePage() {
       </div>
 
       {/* Charts */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 16, marginBottom: 20 }}>
+      <div className="g-chart" style={{ marginBottom: 20 }}>
         {/* Stacked Bar Chart */}
         <div className="card" style={{ padding: 20 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: "#e2e8f0", marginBottom: 16 }}>월별 플랫폼 수익 (최근 6개월)</div>
@@ -272,6 +272,7 @@ export default function RevenuePage() {
       {/* Revenue Table */}
       {!loading && revenues.length > 0 && (
         <div className="card" style={{ overflow: "hidden" }}>
+          <div className="table-wrap">
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
               <tr style={{ background: "#0d1117", borderBottom: "1px solid #1e293b" }}>
@@ -310,6 +311,7 @@ export default function RevenuePage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

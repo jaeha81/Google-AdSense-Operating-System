@@ -45,7 +45,7 @@ export default function QuadrantPage() {
         </div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
+      <div className="g4" style={{ marginBottom: 16 }}>
         {[
           { label: "★ 최고추천",  sub: "우상단 · 행동형+고SEO", color: "#10b981", f: (p: typeof points[0]) => p.x >= 50 && p.y >= 50 },
           { label: "제품리뷰형",  sub: "좌상단 · 수익↑ SEO↓",   color: "#3b82f6", f: (p: typeof points[0]) => p.x < 50 && p.y >= 50  },
@@ -103,6 +103,7 @@ export default function QuadrantPage() {
 
       {points.length > 0 && (
         <div className="card" style={{ overflow: "hidden" }}>
+          <div className="table-wrap">
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
               <tr style={{ background: "#0d1117", borderBottom: "1px solid #1e293b" }}>
@@ -130,6 +131,7 @@ export default function QuadrantPage() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

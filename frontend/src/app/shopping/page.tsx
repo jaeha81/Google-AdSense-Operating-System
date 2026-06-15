@@ -59,7 +59,7 @@ export default function ShoppingPage() {
         {/* 쇼핑커넥트 */}
         <div className="card" style={{ padding: 24, borderRight: "none", borderRadius: "8px 0 0 8px" }}>
           <div style={{ fontSize: 11, color: "#f59e0b", fontWeight: 600, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.08em" }}>쇼핑커넥트 (네이버)</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div className="g2">
             {[
               { label: "쿠키 기간", value: "30일", good: true },
               { label: "수수료", value: "1.5~3%", good: true },
@@ -90,7 +90,7 @@ export default function ShoppingPage() {
         {/* 쿠팡파트너스 */}
         <div className="card" style={{ padding: 24, borderLeft: "none", borderRadius: "0 8px 8px 0" }}>
           <div style={{ fontSize: 11, color: "#ef4444", fontWeight: 600, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.08em" }}>쿠팡파트너스</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div className="g2">
             {[
               { label: "쿠키 기간", value: "24시간", good: false },
               { label: "수수료", value: "1.5~3%", good: true },
@@ -115,13 +115,13 @@ export default function ShoppingPage() {
       </div>
 
       {/* Category Commission Table + Bar Chart */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 16, marginBottom: 20 }}>
+      <div className="g-chart" style={{ marginBottom: 20 }}>
         {/* Table */}
         <div className="card" style={{ overflow: "hidden", padding: 0 }}>
           <div style={{ padding: "16px 20px", borderBottom: "1px solid #1e293b" }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: "#e2e8f0" }}>카테고리별 수수료율 비교</div>
           </div>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <div className="table-wrap"><table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
               <tr style={{ background: "#0d1117" }}>
                 <th style={{ padding: "10px 20px", textAlign: "left", fontSize: 11, color: "#64748b", fontWeight: 500 }}>카테고리</th>
@@ -160,7 +160,7 @@ export default function ShoppingPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
 
         {/* My Performance + Info */}
@@ -229,7 +229,7 @@ export default function ShoppingPage() {
         <div style={{ padding: "16px 20px", borderBottom: "1px solid #1e293b" }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: "#e2e8f0" }}>상황별 전략 가이드</div>
         </div>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <div className="table-wrap"><table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
             <tr style={{ background: "#0d1117" }}>
               {["내 콘텐츠 유형", "추천 플랫폼", "이유"].map(h => (
@@ -260,7 +260,7 @@ export default function ShoppingPage() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   );

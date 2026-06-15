@@ -53,7 +53,7 @@ export default function DashboardPage() {
       </div>
 
       {/* KPI Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="g3" style={{ marginBottom: 20 }}>
         {KPI.map((card) => {
           const raw = stats ? (stats as unknown as Record<string, number>)[card.key] ?? 0 : null;
           const fmt = raw === null ? "—"
@@ -97,7 +97,7 @@ export default function DashboardPage() {
       )}
 
       {/* Charts */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 16, marginBottom: 20 }}>
+      <div className="g-chart" style={{ marginBottom: 20 }}>
         <div className="card" style={{ padding: 18 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0", marginBottom: 14 }}>30일 방문자 추이</div>
           {daily.length === 0 ? (
@@ -141,7 +141,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick nav */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+      <div className="g4">
         {[
           { href: "/keywords",  icon: "🎯", label: "황금 키워드",      desc: "행동형·40대↑ 필터" },
           { href: "/quadrant",  icon: "📐", label: "4사분면 전략",      desc: "콘텐츠 방향 진단" },

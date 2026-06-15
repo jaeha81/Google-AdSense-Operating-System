@@ -103,7 +103,7 @@ export default function ContentPage() {
       {loading ? (
         <div style={{ color: "#64748b", textAlign: "center", paddingTop: 60 }}>로딩 중...</div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+        <div className="g3">
           {STATUS_COLS.map(col => (
             <div key={col.key}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>

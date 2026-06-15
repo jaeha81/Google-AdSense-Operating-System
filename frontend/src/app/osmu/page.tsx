@@ -66,7 +66,7 @@ export default function OsmuPage() {
       </div>
 
       {/* Summary Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+      <div className="g4" style={{ marginBottom: 20 }}>
         {[
           { label: "원본 콘텐츠",        value: `${totalItems}건`,           color: "#3b82f6" },
           { label: "총 배포 건수",        value: `${totalDist}건`,            color: "#10b981" },
@@ -149,7 +149,7 @@ export default function OsmuPage() {
 
       {items.length > 0 && (
         <div className="card" style={{ overflow: "auto", padding: 0 }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <div className="table-wrap"><table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
               <tr style={{ background: "#0d1117", position: "sticky", top: 0 }}>
                 <th style={{ padding: "12px 16px", textAlign: "left", fontSize: 11, color: "#64748b", fontWeight: 500, minWidth: 200 }}>콘텐츠 제목</th>
@@ -218,7 +218,7 @@ export default function OsmuPage() {
                 );
               })}
             </tbody>
-          </table>
+          </table></div>
         </div>
       )}
     </div>

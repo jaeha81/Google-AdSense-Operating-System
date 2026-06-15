@@ -46,7 +46,7 @@ export default function TrafficPage() {
       </div>
 
       {/* Traffic channel guide */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
+      <div className="g3" style={{ marginBottom: 20 }}>
         {[
           { label: "검색유입 (SEO)", role: "기본기 · 안정적", color: "#3b82f6", target: "60%+", avg: `${Math.round(avgSearch * 100)}%` },
           { label: "외부유입 (SNS·커뮤니티)", role: "증폭기 · 빠름", color: "#10b981", target: "30%±", avg: `${Math.round(avgExternal * 100)}%` },
@@ -61,7 +61,7 @@ export default function TrafficPage() {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16, marginBottom: 16 }}>
+      <div className="g-chart" style={{ marginBottom: 16 }}>
         {/* Visitor chart */}
         <div className="card" style={{ padding: 18 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0", marginBottom: 14 }}>30일 방문자 & 수익 추이</div>

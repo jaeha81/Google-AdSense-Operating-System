@@ -57,7 +57,7 @@ export default function SitesPage() {
       {showForm && (
         <div className="card" style={{ padding: 20, marginBottom: 20 }}>
           <div style={{ fontSize: 15, fontWeight: 600, color: "#e2e8f0", marginBottom: 16 }}>새 사이트 등록</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+          <div className="g2" style={{ marginBottom: 12 }}>
             <div>
               <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 6 }}>사이트 이름</div>
               <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="내 티스토리 블로그" />
@@ -98,7 +98,7 @@ export default function SitesPage() {
           <div style={{ fontSize: 13, marginTop: 8 }}>위 버튼으로 첫 번째 디지털 건물을 추가하세요.</div>
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+        <div className="g3">
           {sites.map((site) => (
             <div key={site.id} className="card" style={{ padding: 20 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>

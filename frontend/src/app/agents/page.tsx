@@ -163,7 +163,7 @@ export default function AgentsPage() {
       </div>
 
       {/* Agent Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, marginBottom: 28 }}>
+      <div className="g2" style={{ marginBottom: 28 }}>
         {AGENT_CARDS.map(agent => {
           const last = lastLog(agent.key);
           return (
@@ -205,6 +205,7 @@ export default function AgentsPage() {
         ) : logs.length === 0 ? (
           <div style={{ padding: 40, textAlign: "center", color: "#64748b" }}>아직 실행 기록이 없습니다</div>
         ) : (
+          <div className="table-wrap">
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
               <tr style={{ background: "#0d1117" }}>
@@ -238,6 +239,7 @@ export default function AgentsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

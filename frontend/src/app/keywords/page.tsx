@@ -187,7 +187,7 @@ export default function KeywordsPage() {
       {showAdd && (
         <div className="card" style={{ padding: 18, marginBottom: 16 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0", marginBottom: 14 }}>새 키워드 추가</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 10 }}>
+          <div className="g3" style={{ marginBottom: 10 }}>
             <div>
               <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 4 }}>키워드 *</div>
               <input value={newKw.keyword} onChange={e => setNewKw(n => ({ ...n, keyword: e.target.value }))} placeholder="예: 청년지원금 신청" />
@@ -268,6 +268,7 @@ export default function KeywordsPage() {
         </div>
       ) : (
         <div className="card" style={{ overflow: "hidden" }}>
+          <div className="table-wrap">
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
               <tr style={{ background: "#0d1117", borderBottom: "1px solid #1e293b" }}>
@@ -321,6 +322,7 @@ export default function KeywordsPage() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

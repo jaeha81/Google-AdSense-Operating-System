@@ -82,7 +82,7 @@ export default function ProductivityPage() {
       </div>
 
       {/* KPI Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+      <div className="g4" style={{ marginBottom: 20 }}>
         {kpiCards.map(c => (
           <div key={c.label} className="card" style={{ padding: 20 }}>
             <div style={{ fontSize: 11, color: "#64748b", marginBottom: 8 }}>{c.label}</div>
@@ -92,7 +92,7 @@ export default function ProductivityPage() {
       </div>
 
       {/* Charts Row */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+      <div className="g2" style={{ marginBottom: 20 }}>
         {/* 에이전트별 실행 횟수 */}
         <div className="card" style={{ padding: 20 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: "#e2e8f0", marginBottom: 16 }}>에이전트별 실행 횟수</div>
@@ -145,7 +145,7 @@ export default function ProductivityPage() {
       </div>
 
       {/* 콘텐츠 기반 생산성 추정 */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+      <div className="g2" style={{ marginBottom: 20 }}>
         <div className="card" style={{ padding: 20 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: "#e2e8f0", marginBottom: 16 }}>AI 없이 했다면? (콘텐츠·키워드 기준)</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -205,7 +205,7 @@ export default function ProductivityPage() {
           <div style={{ padding: "14px 20px", borderBottom: "1px solid #1e293b" }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: "#e2e8f0" }}>최근 AI 실행 로그 (50건)</div>
           </div>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <div className="table-wrap"><table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
               <tr style={{ background: "#0d1117" }}>
                 {["에이전트", "상태", "절감 시간", "실행 시각"].map(h => (
@@ -242,7 +242,7 @@ export default function ProductivityPage() {
                 );
               })}
             </tbody>
-          </table>
+          </table></div>
         </div>
       )}
 

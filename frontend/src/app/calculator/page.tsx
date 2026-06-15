@@ -53,7 +53,7 @@ export default function CalculatorPage() {
         <p style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>CPC × CTR × 방문자 = 예상 수익 시뮬레이터</p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="g2">
         {/* Inputs */}
         <div className="card" style={{ padding: 24 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: "#e2e8f0", marginBottom: 20 }}>입력값 설정</div>
@@ -99,7 +99,7 @@ export default function CalculatorPage() {
 
           {/* CPC presets */}
           <div style={{ fontSize: 12, color: "#64748b", marginBottom: 10 }}>빠른 선택</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          <div className="g2">
             {CPC_PRESETS.map(p => (
               <button key={p.value} onClick={() => setCpcKrw(p.value)}
                 style={{
