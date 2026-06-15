@@ -1,7 +1,8 @@
 import os
-import anthropic
+from google import genai
 
-client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""))
+_client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY", ""))
+_MODEL = "gemini-2.0-flash"
 
 
 def run(keyword: str, site_name: str = "") -> dict:
@@ -25,13 +26,8 @@ TITLE: [제목]
 ---
 [본문 마크다운]"""
 
-    message = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=4000,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    raw = message.content[0].text.strip()
+    response = _client.models.generate_content(model=_MODEL, contents=prompt)
+    raw = response.text.strip()
 
     title = ""
     body = raw

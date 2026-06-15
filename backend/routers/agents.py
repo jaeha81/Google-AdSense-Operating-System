@@ -17,25 +17,25 @@ router = APIRouter(prefix="/api/agents", tags=["agents"])
 
 def _agent_error(e: Exception) -> HTTPException:
     msg = str(e)
-    if "credit balance" in msg.lower() or "billing" in msg.lower():
+    if "resource_exhausted" in msg.lower() or "429" in msg or "quota" in msg.lower():
         return HTTPException(
             status_code=402,
             detail={
-                "error": "insufficient_credits",
-                "message": "Anthropic API 크레딧이 부족합니다. console.anthropic.com → Plans & Billing → Add Credits에서 충전해 주세요.",
-                "raw": msg,
+                "error": "quota_exceeded",
+                "message": "Gemini API 할당량 초과입니다. aistudio.google.com에서 AI Studio API 키를 발급받거나, Google Cloud 결제를 활성화하세요.",
+                "raw": msg[:300],
             },
         )
-    if "authentication" in msg.lower() or "api_key" in msg.lower() or "401" in msg:
+    if "unauthenticated" in msg.lower() or "api_key" in msg.lower() or "401" in msg or "403" in msg:
         return HTTPException(
             status_code=401,
             detail={
                 "error": "invalid_api_key",
-                "message": "ANTHROPIC_API_KEY가 유효하지 않습니다. Vercel 환경변수를 확인해 주세요.",
-                "raw": msg,
+                "message": "GEMINI_API_KEY가 유효하지 않습니다. aistudio.google.com에서 키를 재발급하세요.",
+                "raw": msg[:300],
             },
         )
-    return HTTPException(status_code=500, detail={"error": "agent_error", "message": msg})
+    return HTTPException(status_code=500, detail={"error": "agent_error", "message": msg[:300]})
 
 
 DEMO_KEYWORDS = [
@@ -87,24 +87,16 @@ class RevenueAgentRequest(BaseModel):
 
 @router.get("/status")
 def agent_status():
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    api_key = os.environ.get("GEMINI_API_KEY", "")
     if not api_key:
-        return {"status": "error", "reason": "ANTHROPIC_API_KEY not set"}
-    if len(api_key) < 50:
-        return {"status": "error", "reason": "ANTHROPIC_API_KEY looks invalid (too short)"}
+        return {"status": "error", "reason": "GEMINI_API_KEY not set"}
     try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=api_key)
-        client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=5,
-            messages=[{"role": "user", "content": "hi"}],
-        )
-        return {"status": "ok", "key_prefix": api_key[:14] + "..."}
+        from google import genai
+        client = genai.Client(api_key=api_key)
+        client.models.generate_content(model="gemini-2.0-flash", contents="hi")
+        return {"status": "ok", "provider": "Google Gemini 2.0 Flash", "key_prefix": api_key[:8] + "..."}
     except Exception as e:
         msg = str(e)
-        if "credit balance" in msg.lower():
-            return {"status": "no_credits", "reason": "크레딧 부족 — console.anthropic.com에서 충전 필요", "key_prefix": api_key[:14] + "..."}
         return {"status": "error", "reason": msg[:200]}
 
 

@@ -1,8 +1,9 @@
 import os
 import json
-import anthropic
+from google import genai
 
-client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""))
+_client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY", ""))
+_MODEL = "gemini-2.0-flash"
 
 
 def run(site_name: str, revenue_data: list[dict]) -> dict:
@@ -33,13 +34,8 @@ trend는 "상승", "하락", "정체" 중 하나.
 growth_rate는 % 단위.
 next_month_prediction은 달러 기준."""
 
-    message = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=1000,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    raw = message.content[0].text.strip()
+    response = _client.models.generate_content(model=_MODEL, contents=prompt)
+    raw = response.text.strip()
     start = raw.find("{")
     end = raw.rfind("}") + 1
     if start == -1 or end == 0:

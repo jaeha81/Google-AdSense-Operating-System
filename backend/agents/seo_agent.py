@@ -1,8 +1,9 @@
 import os
 import json
-import anthropic
+from google import genai
 
-client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""))
+_client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY", ""))
+_MODEL = "gemini-2.0-flash"
 
 
 def run(title: str, body: str, keyword: str) -> dict:
@@ -30,13 +31,8 @@ def run(title: str, body: str, keyword: str) -> dict:
 
 score는 0-100점."""
 
-    message = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=1000,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    raw = message.content[0].text.strip()
+    response = _client.models.generate_content(model=_MODEL, contents=prompt)
+    raw = response.text.strip()
     start = raw.find("{")
     end = raw.rfind("}") + 1
     if start == -1 or end == 0:
