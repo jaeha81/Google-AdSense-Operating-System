@@ -1,13 +1,13 @@
-{
+﻿{
   "version": "0.0.1",
   "configurations": [
     {
       "name": "frontend",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "cwd": "frontend",
-      "port": 3000,
-      "autoPort": true
+      "port": 3001,
+      "autoPort": false,
+      "cwd": "D:\\ai프로젝트\\Google-AdSense-Operating-System\\frontend"
     }
   ]
 }
