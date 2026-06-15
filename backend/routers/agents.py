@@ -38,6 +38,36 @@ def _agent_error(e: Exception) -> HTTPException:
     return HTTPException(status_code=500, detail={"error": "agent_error", "message": msg})
 
 
+DEMO_KEYWORDS = [
+    {"keyword": "재테크 초보 가이드", "cpc": 2.1, "search_volume": 8200, "competition": "low", "category": "재테크"},
+    {"keyword": "주식 투자 방법", "cpc": 1.8, "search_volume": 12000, "competition": "medium", "category": "재테크"},
+    {"keyword": "적금 금리 비교", "cpc": 2.5, "search_volume": 6500, "competition": "low", "category": "재테크"},
+]
+
+DEMO_CONTENT = {
+    "title": "재테크 초보를 위한 완벽 가이드 — 월 100만원 저축 전략",
+    "body": "## 재테크, 어디서부터 시작해야 할까?\n\n재테크 초보라면 먼저 비상금부터 모아야 합니다...\n\n## 핵심 전략 3가지\n\n1. 자동이체 설정\n2. 소비 패턴 분석\n3. 투자 공부 시작",
+    "word_count": 2100,
+}
+
+DEMO_SEO = {
+    "score": 84,
+    "title_score": 88,
+    "content_score": 80,
+    "keyword_density": 2.8,
+    "suggestions": ["내부 링크 2개 추가", "이미지 alt 태그 작성", "FAQ 섹션 추가"],
+    "meta_description": "재테크 초보를 위한 실전 가이드. 월 100만원 저축 전략과 투자 시작법을 단계별로 알아보세요.",
+}
+
+DEMO_REVENUE = {
+    "trend": "상승",
+    "growth_rate": 23.5,
+    "next_month_prediction": 1580.0,
+    "analysis": "3개월 연속 상승세. 재테크 키워드 CPC 평균 $2.1로 수익성 양호.",
+    "strategies": ["고CPC 키워드 콘텐츠 10편 추가", "모바일 광고 배치 최적화", "뉴스레터 구독자 확보"],
+}
+
+
 class KeywordAgentRequest(BaseModel):
     niche: str
 
@@ -216,3 +246,72 @@ def run_revenue_agent(req: RevenueAgentRequest, db: Session = Depends(get_db)):
         log.output_data = str(e)
         db.commit()
         raise _agent_error(e)
+
+
+@router.post("/pipeline/demo")
+def run_pipeline_demo(db: Session = Depends(get_db)):
+    """크레딧 없이 전체 파이프라인 E2E 검증 (keyword→content→seo→revenue 순서대로 DB 저장)."""
+    niche = "재테크"
+
+    # 1. keyword — DB 저장
+    kw_log = AgentLog(agent_type="keyword", input_data=niche, status="running")
+    db.add(kw_log)
+    db.commit()
+    keywords_saved = []
+    for kd in DEMO_KEYWORDS:
+        kw = Keyword(
+            keyword=kd["keyword"],
+            cpc=kd["cpc"],
+            search_volume=kd["search_volume"],
+            competition=kd["competition"],
+            category=kd["category"],
+        )
+        db.add(kw)
+        keywords_saved.append(kw)
+    kw_log.output_data = json.dumps(DEMO_KEYWORDS, ensure_ascii=False)
+    kw_log.status = "completed"
+    db.commit()
+    db.refresh(keywords_saved[0])
+
+    # 2. content — 첫 번째 키워드로 DB 저장
+    content_log = AgentLog(agent_type="content", input_data=keywords_saved[0].keyword, status="running")
+    db.add(content_log)
+    db.commit()
+    content_obj = Content(
+        title=DEMO_CONTENT["title"],
+        keyword_id=keywords_saved[0].id,
+        body=DEMO_CONTENT["body"],
+        word_count=DEMO_CONTENT["word_count"],
+        status="draft",
+    )
+    db.add(content_obj)
+    content_log.output_data = DEMO_CONTENT["title"]
+    content_log.status = "completed"
+    db.commit()
+    db.refresh(content_obj)
+
+    # 3. seo — 콘텐츠 기반 분석 (DB 저장)
+    seo_log = AgentLog(agent_type="seo", input_data=content_obj.title, status="running")
+    db.add(seo_log)
+    seo_log.output_data = json.dumps(DEMO_SEO, ensure_ascii=False)
+    seo_log.status = "completed"
+    db.commit()
+
+    # 4. revenue — 분석 결과 (DB 저장)
+    rev_log = AgentLog(agent_type="revenue", input_data=niche, status="running")
+    db.add(rev_log)
+    rev_log.output_data = json.dumps(DEMO_REVENUE, ensure_ascii=False)
+    rev_log.status = "completed"
+    db.commit()
+
+    return {
+        "pipeline": "keyword→content→seo→revenue",
+        "mode": "demo",
+        "niche": niche,
+        "step1_keywords": {"saved": len(DEMO_KEYWORDS), "sample": DEMO_KEYWORDS[0]},
+        "step2_content": {"title": content_obj.title, "word_count": content_obj.word_count, "id": content_obj.id},
+        "step3_seo": {"score": DEMO_SEO["score"], "suggestions_count": len(DEMO_SEO["suggestions"])},
+        "step4_revenue": {"trend": DEMO_REVENUE["trend"], "growth_rate": DEMO_REVENUE["growth_rate"], "next_month": DEMO_REVENUE["next_month_prediction"]},
+        "db_saved": True,
+        "logs_written": 4,
+    }
