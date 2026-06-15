@@ -34,6 +34,33 @@ const AGENT_CARDS = [
   },
 ];
 
+type AgentStatus = { status: string; reason?: string; key_prefix?: string } | null;
+
+function extractErrorMsg(err: unknown): string {
+  if (!err) return "알 수 없는 오류";
+  if (typeof err === "object" && err !== null) {
+    const e = err as { status?: number; detail?: { message?: string; error?: string } | string; message?: string };
+    if (e.status === 402) {
+      const msg = typeof e.detail === "object" && e.detail !== null && "message" in e.detail
+        ? (e.detail as { message: string }).message
+        : "Anthropic 크레딧 부족";
+      return `💳 ${msg}`;
+    }
+    if (e.status === 401) {
+      const msg = typeof e.detail === "object" && e.detail !== null && "message" in e.detail
+        ? (e.detail as { message: string }).message
+        : "API 키 오류";
+      return `🔑 ${msg}`;
+    }
+    if (e.detail && typeof e.detail === "object" && "message" in e.detail) {
+      return (e.detail as { message: string }).message;
+    }
+    if (typeof e.detail === "string") return e.detail;
+    if (e.message) return e.message;
+  }
+  return String(err);
+}
+
 export default function AgentsPage() {
   const [logs, setLogs] = useState<AgentLog[]>([]);
   const [keywords, setKeywords] = useState<Keyword[]>([]);
@@ -41,6 +68,7 @@ export default function AgentsPage() {
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState<string | null>(null);
   const [results, setResults] = useState<Record<string, string>>({});
+  const [agentStatus, setAgentStatus] = useState<AgentStatus>(null);
 
   // Inputs
   const [kwNiche, setKwNiche] = useState("");
@@ -53,7 +81,13 @@ export default function AgentsPage() {
       .then(([l, k, s]) => { setLogs(l); setKeywords(k); setSites(s); })
       .finally(() => setLoading(false));
 
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => {
+    refresh();
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/agents/status`)
+      .then(r => r.json())
+      .then(setAgentStatus)
+      .catch(() => setAgentStatus({ status: "error", reason: "백엔드 연결 실패" }));
+  }, []);
 
   const runKeyword = async () => {
     if (!kwNiche.trim()) return;
@@ -62,7 +96,7 @@ export default function AgentsPage() {
       const res = await api.agents.runKeyword(kwNiche);
       setResults(r => ({ ...r, keyword: `✅ ${res.saved}개 키워드 저장됨` }));
       await refresh();
-    } catch { setResults(r => ({ ...r, keyword: "❌ 실패" })); }
+    } catch (e) { setResults(r => ({ ...r, keyword: `❌ ${extractErrorMsg(e)}` })); }
     finally { setRunning(null); }
   };
 
@@ -73,7 +107,7 @@ export default function AgentsPage() {
       const res = await api.agents.runContent(Number(contentKwId));
       setResults(r => ({ ...r, content: `✅ 콘텐츠 생성 완료: "${res.title}"` }));
       await refresh();
-    } catch { setResults(r => ({ ...r, content: "❌ 실패" })); }
+    } catch (e) { setResults(r => ({ ...r, content: `❌ ${extractErrorMsg(e)}` })); }
     finally { setRunning(null); }
   };
 
@@ -90,7 +124,7 @@ export default function AgentsPage() {
       const res = await api.agents.runSeo(siteContent.id) as { score: number; suggestions?: string[] };
       setResults(r => ({ ...r, seo: `✅ SEO 점수: ${res.score}/100 · 개선사항 ${res.suggestions?.length ?? 0}개` }));
       await refresh();
-    } catch { setResults(r => ({ ...r, seo: "❌ 실패" })); }
+    } catch (e) { setResults(r => ({ ...r, seo: `❌ ${extractErrorMsg(e)}` })); }
     finally { setRunning(null); }
   };
 
@@ -101,7 +135,7 @@ export default function AgentsPage() {
       const res = await api.agents.runRevenue(Number(revSiteId)) as { trend: string; next_month_prediction: number; strategies?: string[] };
       setResults(r => ({ ...r, revenue: `✅ 추이: ${res.trend} | 다음달 예측: $${res.next_month_prediction?.toFixed(0)}` }));
       await refresh();
-    } catch { setResults(r => ({ ...r, revenue: "❌ 실패" })); }
+    } catch (e) { setResults(r => ({ ...r, revenue: `❌ ${extractErrorMsg(e)}` })); }
     finally { setRunning(null); }
   };
 
@@ -161,6 +195,34 @@ export default function AgentsPage() {
         <h1 style={{ fontSize: 24, fontWeight: 700, color: "#e2e8f0", margin: 0 }}>AI 에이전트 컨트롤</h1>
         <p style={{ fontSize: 14, color: "#64748b", marginTop: 4 }}>Claude 기반 자동화 에이전트 · 실행 기록 {logs.length}건</p>
       </div>
+
+      {/* API Status Banner */}
+      {agentStatus && (
+        <div style={{
+          marginBottom: 20,
+          padding: "12px 16px",
+          borderRadius: 8,
+          border: `1px solid ${agentStatus.status === "ok" ? "#10b981" : agentStatus.status === "no_credits" ? "#f59e0b" : "#ef4444"}`,
+          background: agentStatus.status === "ok" ? "rgba(16,185,129,0.08)" : agentStatus.status === "no_credits" ? "rgba(245,158,11,0.08)" : "rgba(239,68,68,0.08)",
+          display: "flex", alignItems: "center", gap: 10, fontSize: 13,
+        }}>
+          <span style={{ fontSize: 18 }}>
+            {agentStatus.status === "ok" ? "✅" : agentStatus.status === "no_credits" ? "💳" : "⚠️"}
+          </span>
+          <div>
+            {agentStatus.status === "ok" && <span style={{ color: "#10b981" }}>API 연결 정상 — {agentStatus.key_prefix}</span>}
+            {agentStatus.status === "no_credits" && (
+              <span style={{ color: "#f59e0b" }}>
+                크레딧 부족 —{" "}
+                <a href="https://console.anthropic.com" target="_blank" rel="noreferrer"
+                  style={{ color: "#fbbf24", textDecoration: "underline" }}>console.anthropic.com</a>
+                {" "}에서 충전 필요
+              </span>
+            )}
+            {agentStatus.status === "error" && <span style={{ color: "#ef4444" }}>{agentStatus.reason}</span>}
+          </div>
+        </div>
+      )}
 
       {/* Agent Cards */}
       <div className="g2" style={{ marginBottom: 28 }}>

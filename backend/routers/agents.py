@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
-import json
+import os, json
 from database import get_db
 from models import AgentLog, Keyword, Content, Site, Revenue
 import agents.keyword_agent as keyword_agent
@@ -13,6 +13,29 @@ import agents.seo_agent as seo_agent
 import agents.revenue_agent as revenue_agent
 
 router = APIRouter(prefix="/api/agents", tags=["agents"])
+
+
+def _agent_error(e: Exception) -> HTTPException:
+    msg = str(e)
+    if "credit balance" in msg.lower() or "billing" in msg.lower():
+        return HTTPException(
+            status_code=402,
+            detail={
+                "error": "insufficient_credits",
+                "message": "Anthropic API 크레딧이 부족합니다. console.anthropic.com → Plans & Billing → Add Credits에서 충전해 주세요.",
+                "raw": msg,
+            },
+        )
+    if "authentication" in msg.lower() or "api_key" in msg.lower() or "401" in msg:
+        return HTTPException(
+            status_code=401,
+            detail={
+                "error": "invalid_api_key",
+                "message": "ANTHROPIC_API_KEY가 유효하지 않습니다. Vercel 환경변수를 확인해 주세요.",
+                "raw": msg,
+            },
+        )
+    return HTTPException(status_code=500, detail={"error": "agent_error", "message": msg})
 
 
 class KeywordAgentRequest(BaseModel):
@@ -30,6 +53,29 @@ class SeoAgentRequest(BaseModel):
 
 class RevenueAgentRequest(BaseModel):
     site_id: int
+
+
+@router.get("/status")
+def agent_status():
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return {"status": "error", "reason": "ANTHROPIC_API_KEY not set"}
+    if len(api_key) < 50:
+        return {"status": "error", "reason": "ANTHROPIC_API_KEY looks invalid (too short)"}
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=api_key)
+        client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=5,
+            messages=[{"role": "user", "content": "hi"}],
+        )
+        return {"status": "ok", "key_prefix": api_key[:14] + "..."}
+    except Exception as e:
+        msg = str(e)
+        if "credit balance" in msg.lower():
+            return {"status": "no_credits", "reason": "크레딧 부족 — console.anthropic.com에서 충전 필요", "key_prefix": api_key[:14] + "..."}
+        return {"status": "error", "reason": msg[:200]}
 
 
 @router.get("/logs")
@@ -66,7 +112,7 @@ def run_keyword_agent(req: KeywordAgentRequest, db: Session = Depends(get_db)):
         log.status = "failed"
         log.output_data = str(e)
         db.commit()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise _agent_error(e)
 
 
 @router.post("/content")
@@ -106,7 +152,7 @@ def run_content_agent(req: ContentAgentRequest, db: Session = Depends(get_db)):
         log.status = "failed"
         log.output_data = str(e)
         db.commit()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise _agent_error(e)
 
 
 @router.post("/seo")
@@ -135,7 +181,7 @@ def run_seo_agent(req: SeoAgentRequest, db: Session = Depends(get_db)):
         log.status = "failed"
         log.output_data = str(e)
         db.commit()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise _agent_error(e)
 
 
 @router.post("/revenue")
@@ -169,4 +215,4 @@ def run_revenue_agent(req: RevenueAgentRequest, db: Session = Depends(get_db)):
         log.status = "failed"
         log.output_data = str(e)
         db.commit()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise _agent_error(e)

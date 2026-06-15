@@ -5,3 +5,4 @@ pydantic==2.10.3
 anthropic==0.40.0
 python-multipart==0.0.19
 psycopg2-binary==2.9.10
+libsql-experimental
