@@ -2,8 +2,16 @@ import os
 import json
 from google import genai
 
-_client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY", ""))
+_client = None
 _MODEL = "gemini-2.0-flash"
+
+
+def _get_client() -> genai.Client:
+    """Lazily create the Gemini client so the app still imports without a key."""
+    global _client
+    if _client is None:
+        _client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY", ""))
+    return _client
 
 
 def run(site_name: str, revenue_data: list[dict]) -> dict:
@@ -34,7 +42,7 @@ trend는 "상승", "하락", "정체" 중 하나.
 growth_rate는 % 단위.
 next_month_prediction은 달러 기준."""
 
-    response = _client.models.generate_content(model=_MODEL, contents=prompt)
+    response = _get_client().models.generate_content(model=_MODEL, contents=prompt)
     raw = response.text.strip()
     start = raw.find("{")
     end = raw.rfind("}") + 1

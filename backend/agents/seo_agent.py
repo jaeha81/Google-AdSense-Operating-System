@@ -2,8 +2,16 @@ import os
 import json
 from google import genai
 
-_client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY", ""))
+_client = None
 _MODEL = "gemini-2.0-flash"
+
+
+def _get_client() -> genai.Client:
+    """Lazily create the Gemini client so the app still imports without a key."""
+    global _client
+    if _client is None:
+        _client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY", ""))
+    return _client
 
 
 def run(title: str, body: str, keyword: str) -> dict:
@@ -31,7 +39,7 @@ def run(title: str, body: str, keyword: str) -> dict:
 
 score는 0-100점."""
 
-    response = _client.models.generate_content(model=_MODEL, contents=prompt)
+    response = _get_client().models.generate_content(model=_MODEL, contents=prompt)
     raw = response.text.strip()
     start = raw.find("{")
     end = raw.rfind("}") + 1
