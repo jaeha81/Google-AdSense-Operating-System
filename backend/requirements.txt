@@ -5,4 +5,3 @@ pydantic==2.10.3
 google-genai==1.16.1
 python-multipart==0.0.19
 psycopg2-binary==2.9.10
-libsql-experimental
